@@ -120,7 +120,7 @@ export const Dashboard = () => {
               Visualizza iscritti e percentuali di check-in per gli eventi passati.
             </p>
             <div className="mt-4">
-              <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate("/event-statistics"); }}>
+              <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate("/statistics"); }}>
                 Vai alle statistiche
               </Button>
             </div>
