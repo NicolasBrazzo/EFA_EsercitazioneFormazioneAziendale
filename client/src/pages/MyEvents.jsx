@@ -26,7 +26,7 @@ export const MyEvents = () => {
   const subscribedEventIds = new Set(mySubscriptions?.map((s) => s.event_id) ?? []);
 
   const today = new Date().toISOString().split("T")[0];
-  const isPast = (dateStr) => dateStr < today;
+  const isPast = (dateStr) => dateStr <= today;
 
   const handleSubscribe = async (eventId) => {
     try {

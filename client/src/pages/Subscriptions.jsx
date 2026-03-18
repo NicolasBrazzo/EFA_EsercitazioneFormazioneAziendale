@@ -46,7 +46,7 @@ export const Subscriptions = () => {
   const getEventDate = (eventId) => events?.find((e) => e.id === eventId)?.date ?? "—";
 
   const today = new Date().toISOString().split("T")[0];
-  const isPast = (dateStr) => dateStr < today;
+  const isPast = (dateStr) => dateStr <= today;
 
   return (
     <div className="px-6 py-6 space-y-6">
