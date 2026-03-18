@@ -45,6 +45,9 @@ export const Subscriptions = () => {
   const getEventTitle = (eventId) => events?.find((e) => e.id === eventId)?.title ?? eventId;
   const getEventDate = (eventId) => events?.find((e) => e.id === eventId)?.date ?? "—";
 
+  const today = new Date().toISOString().split("T")[0];
+  const isPast = (dateStr) => dateStr < today;
+
   return (
     <div className="px-6 py-6 space-y-6">
       <div>
@@ -89,13 +92,17 @@ export const Subscriptions = () => {
                     {sub.checkinTime || "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <Button
-                      variant="destructive"
-                      size="xs"
-                      onClick={() => handleCancel(sub)}
-                    >
-                      Annulla
-                    </Button>
+                    {isPast(getEventDate(sub.event_id)) ? (
+                      <span className="text-xs text-muted-foreground">Evento passato</span>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="xs"
+                        onClick={() => handleCancel(sub)}
+                      >
+                        Annulla
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}

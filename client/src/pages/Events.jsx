@@ -28,6 +28,8 @@ const SortIcon = ({ field, sortField, sortDirection }) => {
 
 // --- Event Form ---
 const EventForm = ({ initialData, onSubmit, error }) => {
+  const today = new Date().toISOString().split("T")[0];
+
   const [formState, setFormState] = useState({
     title: initialData?.title || "",
     date: initialData?.date || "",
@@ -64,6 +66,7 @@ const EventForm = ({ initialData, onSubmit, error }) => {
           id="date"
           name="date"
           type="date"
+          min={today}
           value={formState.date}
           onChange={handleChange}
           required
@@ -121,6 +124,11 @@ export const Events = () => {
       : events || [];
 
   const handleSubmit = async (formData) => {
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.date < today) {
+      setFormError("La data dell'evento non può essere nel passato.");
+      return;
+    }
     try {
       setFormError(null);
       if (editingItem) {

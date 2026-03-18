@@ -44,3 +44,10 @@ export const deleteEvent = async (id) => {
     throw new Error(err?.response?.data?.error || err.message);
   }
 };
+
+export const fetchEventStatistics = (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.from) query.append("from", params.from);
+  if (params.to)   query.append("to", params.to);
+  return api.get(`/events/statistics?${query}`).then((r) => r.data.statistics);
+};

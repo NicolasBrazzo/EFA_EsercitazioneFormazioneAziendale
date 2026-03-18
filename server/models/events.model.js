@@ -76,10 +76,22 @@ const deleteEventById = async (id) => {
   return data;
 };
 
+// Find Past Events (date < today), with optional date range filter
+const findPastEvents = async (fromDate, toDate) => {
+  const today = new Date().toISOString().split("T")[0];
+  let query = supabase.from("EFA_Events").select("*").lt("date", today).order("date", { ascending: false });
+  if (fromDate) query = query.gte("date", fromDate);
+  if (toDate)   query = query.lte("date", toDate);
+  const { data, error } = await query;
+  if (error) throw new Error("DATABASE_FIND_PAST_EVENTS_ERROR");
+  return data;
+};
+
 module.exports = {
   findAllEvents,
   findEventById,
   createEvent,
   updateEventById,
-  deleteEventById
+  deleteEventById,
+  findPastEvents,
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, ClipboardCheck, ClipboardList, LayoutDashboard, Users } from "lucide-react";
+import { BarChart2, CalendarDays, ClipboardCheck, ClipboardList, LayoutDashboard, Users } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,7 +7,8 @@ const ORGANIZER_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard",       path: "/dashboard" },
   { icon: CalendarDays,    label: "Gestione eventi", path: "/events" },
   { icon: ClipboardCheck,  label: "Check-in",        path: "/checkin" },
-  { icon: Users,           label: "Gestione utenti", path: "/users" },
+  { icon: Users,           label: "Gestione utenti",   path: "/users" },
+  { icon: BarChart2,       label: "Statistiche eventi", path: "/statistics" },
 ];
 
 const EMPLOYEE_ITEMS = [
@@ -42,7 +43,7 @@ export const Sidebar = () => {
           {isOpen && (
             <div className="flex items-center gap-2 overflow-hidden">
               <span className="text-sidebar-foreground text-sm font-medium whitespace-nowrap">
-                EFA
+                Formazione aziendale
               </span>
             </div>
           )}

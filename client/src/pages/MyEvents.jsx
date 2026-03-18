@@ -25,6 +25,9 @@ export const MyEvents = () => {
 
   const subscribedEventIds = new Set(mySubscriptions?.map((s) => s.event_id) ?? []);
 
+  const today = new Date().toISOString().split("T")[0];
+  const isPast = (dateStr) => dateStr < today;
+
   const handleSubscribe = async (eventId) => {
     try {
       await createSubscription({ user_id: user.id, event_id: eventId });
@@ -72,7 +75,9 @@ export const MyEvents = () => {
                     <td className="px-4 py-3 text-muted-foreground">{ev.date}</td>
                     <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">{ev.description || "—"}</td>
                     <td className="px-4 py-3">
-                      {isSubscribed ? (
+                      {isPast(ev.date) ? (
+                        <span className="text-xs text-muted-foreground">Evento passato</span>
+                      ) : isSubscribed ? (
                         <Badge variant="success">Iscritto</Badge>
                       ) : (
                         <Button size="xs" onClick={() => handleSubscribe(ev.id)}>

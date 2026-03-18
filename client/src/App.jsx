@@ -12,6 +12,7 @@ import { Checkin } from "./pages/Checkin.jsx";
 import { Users } from "./pages/Users.jsx";
 import { Subscriptions } from "./pages/Subscriptions.jsx";
 import { MyEvents } from "./pages/MyEvents.jsx";
+import { EventStatistics } from "./pages/EventStatistics.jsx";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ function App() {
                   <Route path="/users" element={<Users />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/my-events" element={<MyEvents />} />
+                  <Route path="/statistics" element={<EventStatistics />} />
                 </Route>
               </Route>
             </Routes>

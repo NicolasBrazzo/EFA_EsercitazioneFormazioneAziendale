@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, ClipboardList, ArrowRight } from "lucide-react";
+import { CalendarDays, ClipboardList, ArrowRight, BarChart2 } from "lucide-react";
 
 import { fetchEvents } from "../services/eventsService";
 import { fetchSubscriptions } from "../services/subscriptionsService";
@@ -98,6 +98,30 @@ export const Dashboard = () => {
             <div className="mt-4">
               <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate("/checkin"); }}>
                 Vai agli eventi
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Organizer: quick link to statistics */}
+        {user.isOrganizer && (
+          <div
+            className="cursor-pointer rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-border/80 group"
+            onClick={() => navigate("/statistics")}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                <BarChart2 className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">Statistiche eventi</p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Visualizza iscritti e percentuali di check-in per gli eventi passati.
+            </p>
+            <div className="mt-4">
+              <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate("/event-statistics"); }}>
+                Vai alle statistiche
               </Button>
             </div>
           </div>
