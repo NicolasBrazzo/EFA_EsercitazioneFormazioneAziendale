@@ -67,9 +67,11 @@ router.post("/login", async (req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
+    console.log("[REGISTER] body ricevuto:", req.body);
     const { name, surname, email, password, isOrganizer } = req.body;
 
     if (!name || !surname || !email || !password) {
+      console.log("[REGISTER] campi mancanti:", { name, surname, email, password: !!password });
       return res.status(400).json({
         ok: false,
         error: "Nome, cognome, email e password sono obbligatori",
@@ -77,6 +79,7 @@ router.post("/register", async (req, res) => {
     }
 
     if (!validateEmail(email)) {
+      console.log("[REGISTER] email non valida:", email);
       return res.status(400).json({
         ok: false,
         error: "Inserisci una email corretta",
@@ -85,13 +88,16 @@ router.post("/register", async (req, res) => {
 
     const passwordErrors = validatePassword(password);
     if (passwordErrors.length > 0) {
+      console.log("[REGISTER] password non valida:", passwordErrors);
       return res.status(400).json({
         ok: false,
         errors: passwordErrors,
       });
     }
 
+    console.log("[REGISTER] cerco utente esistente con email:", email);
     const existingUser = await findUserByEmail(email);
+    console.log("[REGISTER] utente esistente:", existingUser);
 
     if (existingUser) {
       return res.status(409).json({
@@ -100,8 +106,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    console.log("[REGISTER] hashing password...");
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
+    console.log("[REGISTER] creazione utente...");
     const newUser = await createNewUser(
       name,
       surname,
@@ -109,6 +117,7 @@ router.post("/register", async (req, res) => {
       hashedPassword,
       isOrganizer || false,
     );
+    console.log("[REGISTER] utente creato:", newUser);
 
     const token = jwt.sign(
       {
@@ -120,16 +129,17 @@ router.post("/register", async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN },
     );
 
+    console.log("[REGISTER] successo per:", email);
     return res.status(201).json({
       ok: true,
       token,
     });
   } catch (err) {
-    console.error("REGISTER ERROR:", err);
+    console.error("[REGISTER] ERRORE:", err.message, err.stack);
 
     return res.status(500).json({
       ok: false,
-      error: "Errore interno del server",
+      error: err.message || "Errore interno del server",
     });
   }
 });

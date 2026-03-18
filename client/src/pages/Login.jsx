@@ -48,7 +48,7 @@ export const Login = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <span className="text-2xl leading-none">🗓️</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">check-in per eventi di formazione aziendale</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Gestionale formazione aziendale</h1>
           <p className="text-sm text-muted-foreground">Accedi al gestionale</p>
         </div>
 

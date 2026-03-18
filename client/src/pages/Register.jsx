@@ -50,7 +50,7 @@ export const Register = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <span className="text-2xl leading-none">🗓️</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">EFA</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Gestionale formazione aziendale</h1>
           <p className="text-sm text-muted-foreground">Crea il tuo account</p>
         </div>
 
@@ -122,7 +122,13 @@ export const Register = () => {
             </div>
 
             {error && (
-              <p className="text-sm text-destructive font-medium">{error}</p>
+              <ul className="space-y-0.5">
+                {error.split("\n").map((msg, i) => (
+                  <li key={i} className="text-sm text-destructive font-medium">
+                    {msg}
+                  </li>
+                ))}
+              </ul>
             )}
 
             <Button type="submit" className="w-full">

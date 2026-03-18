@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (data) => {
+    console.log("data", data);
     try {
       const res = await api.post("/auth/register", data);
       if (res.data.ok && res.data.token) {
@@ -51,7 +52,11 @@ export const AuthProvider = ({ children }) => {
       }
       return { ok: false, message: res.data?.error || "Registrazione fallita" };
     } catch (err) {
-      return { ok: false, message: err?.response?.data?.error || err.message };
+      const data = err?.response?.data;
+      if (data?.errors?.length > 0) {
+        return { ok: false, message: data.errors.join("\n") };
+      }
+      return { ok: false, message: data?.error || err.message };
     }
   };
 

@@ -18,6 +18,7 @@ const createNewUser = async (name, surname, email, password, isOrganizer) => {
     .single();
 
   if (error) {
+    console.error("[createNewUser] Supabase error:", error);
     throw new Error("DATABASE_CREATE_USER_ERROR");
   }
 

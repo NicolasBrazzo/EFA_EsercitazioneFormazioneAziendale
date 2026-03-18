@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit, Trash, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { showSuccess } from "@/utils/toast";
 
 import {
@@ -223,11 +224,23 @@ export const Events = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {sortedEvents.map((ev) => (
-                <tr key={ev.id} className="hover:bg-muted/30 transition-colors">
+              {sortedEvents.map((ev) => {
+                const today = new Date().toISOString().split("T")[0];
+                const past = ev.date < today;
+                return (
+                <tr key={ev.id} className={`hover:bg-muted/30 transition-colors ${past ? "opacity-60" : ""}`}>
                   <td className="px-4 py-3 font-medium">{ev.id}</td>
                   <td className="px-4 py-3 font-medium">{ev.title}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{ev.date}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <span>{ev.date}</span>
+                      {past ? (
+                        <Badge variant="muted">Passato</Badge>
+                      ) : (
+                        <Badge variant="success">Disponibile</Badge>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">{ev.description || "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
@@ -252,7 +265,8 @@ export const Events = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
