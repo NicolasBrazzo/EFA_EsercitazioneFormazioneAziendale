@@ -138,6 +138,10 @@ router.delete("/:id", protect, isOrganizer, async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (String(req.user.id) === String(id)) {
+      return res.status(403).json({ ok: false, error: "Non puoi eliminare il tuo stesso account" });
+    }
+
     const user = await deleteUserById(id);
     return res.status(200).json({ ok: true, user });
   } catch (err) {

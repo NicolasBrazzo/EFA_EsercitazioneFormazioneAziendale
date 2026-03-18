@@ -17,6 +17,7 @@ import { showSuccess } from "../utils/toast";
 import { USERS_COLUMN_LABELS } from "../constants/columnLabels";
 import { Edit, Trash, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { sortByField } from "../utils/sortHelpers";
+import { useAuth } from "../context/AuthContext";
 
 const UsersForm = ({ initialData, onSubmit, error }) => {
   const [formState, setFormState] = useState({
@@ -127,6 +128,7 @@ const SortIcon = ({ field, sortField, sortDirection }) => {
 };
 
 export const Users = () => {
+  const { user: currentUser } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formError, setFormError] = useState(null);
@@ -323,13 +325,15 @@ export const Users = () => {
                       >
                         <Edit />
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon-sm"
-                        onClick={() => handleDelete(user)}
-                      >
-                        <Trash />
-                      </Button>
+                      {String(user.id) !== String(currentUser?.id) && (
+                        <Button
+                          variant="destructive"
+                          size="icon-sm"
+                          onClick={() => handleDelete(user)}
+                        >
+                          <Trash />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
