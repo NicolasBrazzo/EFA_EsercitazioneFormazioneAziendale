@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       if (res.data.user) {
         const u = res.data.user;
         // Da modificare
-        setUser({ id: u.sub, email: u.email, isAdmin: u.isAdmin });
+        setUser({ id: u.sub, email: u.email, isOrganizer: u.isOrganizer });
       } else {
         localStorage.removeItem("token");
         setUser(null);
@@ -38,6 +38,20 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const register = async (data) => {
+    try {
+      const res = await api.post("/auth/register", data);
+      if (res.data.ok && res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        await checkAuth();
+        return { ok: true };
+      }
+      return { ok: false, message: res.data?.error || "Registrazione fallita" };
+    } catch (err) {
+      return { ok: false, message: err?.response?.data?.error || err.message };
     }
   };
 
@@ -66,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

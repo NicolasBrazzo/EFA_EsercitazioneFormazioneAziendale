@@ -10,7 +10,7 @@ const findAllUsers = async () => {
 };
 
 // create new user
-const createNewUser = async (name, surname, email, password, role) => {
+const createNewUser = async (name, surname, email, password, isOrganizer) => {
   const { data, error } = await supabase
     .from("EFA_Users")
     .insert([{ name, surname, email, password, isOrganizer }])

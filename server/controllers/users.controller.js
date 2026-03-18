@@ -14,16 +14,16 @@ const { validatePassword } = require("../utils/validatePassword");
 
 const router = express.Router();
 
-// middleware to check if user is admin
-const isAdmin = (req, res, next) => {
-  if (!req.user.isAdmin) {
+// middleware to check if user is organizer
+const isOrganizer = (req, res, next) => {
+  if (!req.user.isOrganizer) {
     return res.status(403).json({ ok: false, error: "Accesso non autorizzato" });
   }
   next();
 };
 
 // Get All Users
-router.get("/", protect, isAdmin, async (req, res) => {
+router.get("/", protect, isOrganizer, async (req, res) => {
   try {
     const users = await findAllUsers();
     return res.status(200).json({ ok: true, users });
@@ -34,7 +34,7 @@ router.get("/", protect, isAdmin, async (req, res) => {
 });
 
 // Get single user by id
-router.get("/:id", protect, isAdmin, async (req, res) => {
+router.get("/:id", protect, isOrganizer, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await findUserById(id);
@@ -49,15 +49,15 @@ router.get("/:id", protect, isAdmin, async (req, res) => {
 });
 
 // Create User
-router.post("/", protect, isAdmin, async (req, res) => {
+router.post("/", protect, isOrganizer, async (req, res) => {
   try {
-    const { email, password, isAdmin } = req.body;
+    const { name, surname, email, password, isOrganizer: isOrganizerField } = req.body;
 
     // Validazione base dei campi
-    if (!email || !password || typeof isAdmin !== "boolean") {
+    if (!name || !surname || !email || !password) {
       return res.status(400).json({
         ok: false,
-        error: "Campi obbligatori mancanti: email, password, tipo utente",
+        error: "Campi obbligatori mancanti: nome, cognome, email, password",
       });
     }
 
@@ -88,7 +88,7 @@ router.post("/", protect, isAdmin, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await createNewUser(email, hashedPassword, isAdmin);
+    const user = await createNewUser(name, surname, email, hashedPassword, isOrganizerField ?? false);
     return res.status(201).json({ ok: true, user });
   } catch (err) {
     console.error("CREATE USER ERROR:", err);
@@ -97,27 +97,20 @@ router.post("/", protect, isAdmin, async (req, res) => {
 });
 
 // Update User by ID
-router.put("/:id", protect, isAdmin, async (req, res) => {
+router.put("/:id", protect, isOrganizer, async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, password, isAdmin } = req.body;
+    const { name, surname, email, password, isOrganizer: isOrganizerField } = req.body;
 
-    if (String(req.user.sub) === id && req.user.isAdmin && isAdmin === false) {
-      return res.status(403).json({
-        ok: false,
-        error: "Non puoi rimuovere i privilegi di amministratore dal tuo account.",
-      });
-    }
-
-    // Validazione base dei campi (email obbligatoria, password opzionale ma se presente deve essere valida)
-    if (!email || typeof isAdmin !== "boolean") {
+    // Validazione base dei campi
+    if (!name || !surname || !email) {
       return res.status(400).json({
         ok: false,
-        error: "Campi obbligatori mancanti: email, tipo utente",
+        error: "Campi obbligatori mancanti: nome, cognome, email",
       });
     }
 
-    let updateData = { email, isAdmin };
+    let updateData = { name, surname, email, isOrganizer: isOrganizerField ?? false };
 
     if (password) {
       const passwordErrors = validatePassword(password);
@@ -141,7 +134,7 @@ router.put("/:id", protect, isAdmin, async (req, res) => {
 });
 
 // Delete User by ID
-router.delete("/:id", protect, isAdmin, async (req, res) => {
+router.delete("/:id", protect, isOrganizer, async (req, res) => {
   try {
     const { id } = req.params;
 

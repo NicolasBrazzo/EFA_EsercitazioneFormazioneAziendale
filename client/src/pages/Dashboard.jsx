@@ -1,60 +1,33 @@
 import { useAuth } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Truck, Users, UserCog, MapPin, ArrowRight } from "lucide-react";
+import { CalendarDays, ClipboardList, ArrowRight } from "lucide-react";
 
-import { fetchClients } from "../services/clientsService";
-import { fetchDeliveries } from "../services/deliveriesService";
-import { fetchUsers } from "../services/userService";
+import { fetchEvents } from "../services/eventsService";
+import { fetchSubscriptions } from "../services/subscriptionsService";
 import { Button } from "@/components/ui/button";
 
 export const Dashboard = () => {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
 
-  const {
-    data: clients,
-    isLoading: loadingClients,
-    error: clientsError,
-  } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => fetchClients(),
+  const { data: events, isLoading: loadingEvents } = useQuery({
+    queryKey: ["events"],
+    queryFn: fetchEvents,
   });
 
-  const {
-    data: deliveries,
-    isLoading: loadingDeliveries,
-    error: deliveriesError,
-  } = useQuery({
-    queryKey: ["deliveries", { status: "", id_client: "" }],
-    queryFn: () => fetchDeliveries(),
-  });
-
-  const {
-    data: users,
-    isLoading: loadingUsers,
-    error: usersError,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => fetchUsers(),
-    enabled: !!user?.isAdmin,
+  const { data: mySubscriptions, isLoading: loadingSubs } = useQuery({
+    queryKey: ["subscriptions", { user_id: user?.id }],
+    queryFn: () => fetchSubscriptions({ user_id: user?.id }),
+    enabled: !!user?.id && !user?.isOrganizer,
   });
 
   if (loading) return <p>loading...</p>;
   if (!user) return <p>Accesso negato</p>;
 
-  const totalClients = clients?.length ?? 0;
-  const totalDeliveries = deliveries?.length ?? 0;
-  const totalUsers = users?.length ?? 0;
-
-  const inDeliveryCount =
-    deliveries?.filter((d) => d.status === "in_consegna").length ?? 0;
-  const toPickupCount =
-    deliveries?.filter((d) => d.status === "da_ritirare").length ?? 0;
-  const deliveredCount =
-    deliveries?.filter((d) => d.status === "consegnato").length ?? 0;
-
-  const hasAnyError = clientsError || deliveriesError || usersError;
+  const totalEvents = events?.length ?? 0;
+  const mySubsCount = mySubscriptions?.length ?? 0;
+  const checkedInCount = mySubscriptions?.filter((s) => s.checkinDone).length ?? 0;
 
   return (
     <div className="px-6 py-6 space-y-8">
@@ -62,14 +35,14 @@ export const Dashboard = () => {
         <div>
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Panoramica generale delle attività del gestionale.
+            Benvenuto nel gestionale formazione aziendale.
           </p>
           <p className="mt-1 text-sm">
             Utente:{" "}
             <span className="font-medium">{user.email}</span>
-            {user.isAdmin && (
+            {user.isOrganizer && (
               <span className="ml-2 inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/20">
-                Admin
+                Organizzatore
               </span>
             )}
           </p>
@@ -79,105 +52,83 @@ export const Dashboard = () => {
         </Button>
       </div>
 
-      {hasAnyError && (
-        <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive ring-1 ring-inset ring-destructive/20">
-          Si è verificato un errore nel caricamento dei dati della dashboard.
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {/* Events card — visible to all */}
         <div
           className="cursor-pointer rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-border/80 group"
-          onClick={() => navigate("/deliveries")}
+          onClick={() => navigate(user.isOrganizer ? "/events" : "/my-events")}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-              <Truck className="h-4 w-4 text-muted-foreground" />
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
             </div>
-            {loadingDeliveries ? (
+            {loadingEvents ? (
               <span className="text-xs text-muted-foreground">Caricamento...</span>
             ) : (
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             )}
           </div>
-          <p className="text-2xl font-semibold">{totalDeliveries}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-0.5">Consegne</p>
-          <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-            <div className="flex items-center justify-between">
-              <span>In consegna</span>
-              <span className="font-semibold text-foreground">{inDeliveryCount}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Da ritirare</span>
-              <span className="font-semibold text-foreground">{toPickupCount}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Consegnate</span>
-              <span className="font-semibold text-foreground">{deliveredCount}</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="cursor-pointer rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-border/80 group"
-          onClick={() => navigate("/clients")}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </div>
-            {loadingClients ? (
-              <span className="text-xs text-muted-foreground">Caricamento...</span>
-            ) : (
-              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            )}
-          </div>
-          <p className="text-2xl font-semibold">{totalClients}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-0.5">Clienti</p>
+          <p className="text-2xl font-semibold">{totalEvents}</p>
+          <p className="text-sm font-medium text-muted-foreground mt-0.5">
+            {user.isOrganizer ? "Eventi" : "Eventi disponibili"}
+          </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            Elenco completo dei clienti registrati nel sistema.
+            {user.isOrganizer
+              ? "Gestisci gli eventi e i check-in dei partecipanti."
+              : "Visualizza tutti gli eventi a cui puoi iscriverti."}
           </p>
         </div>
 
-        {user?.isAdmin && (
+        {/* Organizer: quick link to checkin */}
+        {user.isOrganizer && (
           <div
             className="cursor-pointer rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-border/80 group"
-            onClick={() => navigate("/users")}
+            onClick={() => navigate("/checkin")}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-                <UserCog className="h-4 w-4 text-muted-foreground" />
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
               </div>
-              {loadingUsers ? (
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">Pannello check-in</p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Registra la presenza dei partecipanti agli eventi.
+            </p>
+            <div className="mt-4">
+              <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate("/checkin"); }}>
+                Vai agli eventi
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Employee: my subscriptions */}
+        {!user.isOrganizer && (
+          <div
+            className="cursor-pointer rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-border/80 group"
+            onClick={() => navigate("/subscriptions")}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              </div>
+              {loadingSubs ? (
                 <span className="text-xs text-muted-foreground">Caricamento...</span>
               ) : (
                 <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               )}
             </div>
-            <p className="text-2xl font-semibold">{totalUsers}</p>
-            <p className="text-sm font-medium text-muted-foreground mt-0.5">Utenti</p>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Gestione degli account con accesso alla piattaforma.
-            </p>
-          </div>
-        )}
-
-        <div className="rounded-xl border bg-card p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+            <p className="text-2xl font-semibold">{mySubsCount}</p>
+            <p className="text-sm font-medium text-muted-foreground mt-0.5">Le mie iscrizioni</p>
+            <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Check-in effettuati</span>
+                <span className="font-semibold text-foreground">{checkedInCount}</span>
+              </div>
             </div>
           </div>
-          <p className="text-sm font-medium text-muted-foreground">Tracking rapido</p>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Cerca lo stato di una consegna tramite codice spedizione.
-          </p>
-          <div className="mt-4">
-            <Button size="sm" onClick={() => navigate("/delivery-track")}>
-              Vai al tracking
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

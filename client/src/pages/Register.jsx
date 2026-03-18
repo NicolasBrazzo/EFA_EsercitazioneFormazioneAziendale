@@ -7,30 +7,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-export const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export const Register = () => {
+  const [form, setForm] = useState({ name: "", surname: "", email: "", password: "", isOrganizer: false });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const res = await login({ email: email, password: password });
+    const res = await register(form);
     if (res.ok) {
-      showSuccess("Login avvenuto con successo");
-      setLoading(false);
+      showSuccess("Registrazione avvenuta con successo");
       navigate("/dashboard");
     } else {
-      setLoading(false);
       setError(res.message);
-      console.error("Login error");
     }
+    setLoading(false);
   };
 
   if (loading) {
@@ -48,20 +50,46 @@ export const Login = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <span className="text-2xl leading-none">🗓️</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">check-in per eventi di formazione aziendale</h1>
-          <p className="text-sm text-muted-foreground">Accedi al gestionale</p>
+          <h1 className="text-2xl font-semibold tracking-tight">EFA</h1>
+          <p className="text-sm text-muted-foreground">Crea il tuo account</p>
         </div>
 
         <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Mario"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="surname">Cognome</Label>
+                <Input
+                  id="surname"
+                  name="surname"
+                  placeholder="Rossi"
+                  value={form.surname}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="nome@esempio.it"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -70,12 +98,27 @@ export const Login = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={form.password}
+                onChange={handleChange}
                 required
               />
+            </div>
+
+            <div className="flex items-center gap-3 rounded-md border border-input px-3 py-2.5">
+              <input
+                type="checkbox"
+                id="isOrganizer"
+                name="isOrganizer"
+                checked={!!form.isOrganizer}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border-input accent-primary"
+              />
+              <Label htmlFor="isOrganizer" className="cursor-pointer">
+                Organizzatore
+              </Label>
             </div>
 
             {error && (
@@ -83,17 +126,17 @@ export const Login = () => {
             )}
 
             <Button type="submit" className="w-full">
-              Accedi
+              Registrati
             </Button>
           </form>
         </div>
 
         <div className="text-center">
           <Link
-            to="/register"
+            to="/"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Non hai un account? Registrati →
+            Hai già un account? Accedi →
           </Link>
         </div>
       </div>

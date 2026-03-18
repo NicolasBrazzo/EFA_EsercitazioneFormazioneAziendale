@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"router\\\\|app\\\\.\" C:UsersAcerDesktopEFA_EsercitazioneFormazioneAziendale-mainserver --include=*.js)"
+    ]
+  }
+}

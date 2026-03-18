@@ -1,18 +1,26 @@
 import { useState } from "react";
-import { PackageCheck, UserPlus } from "lucide-react";
+import { CalendarDays, ClipboardCheck, ClipboardList, LayoutDashboard, Users } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LayoutDashboard, User } from "lucide-react";
-const MENU_ITEMS = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: User, label: "Clienti", path: "/clients" },
-  { icon: PackageCheck, label: "Consegne", path: "/deliveries" },
-  { icon: UserPlus, label: "Utenti", path: "/users" },
+
+const ORGANIZER_ITEMS = [
+  { icon: LayoutDashboard, label: "Dashboard",       path: "/dashboard" },
+  { icon: CalendarDays,    label: "Gestione eventi", path: "/events" },
+  { icon: ClipboardCheck,  label: "Check-in",        path: "/checkin" },
+  { icon: Users,           label: "Gestione utenti", path: "/users" },
+];
+
+const EMPLOYEE_ITEMS = [
+  { icon: LayoutDashboard, label: "Dashboard",         path: "/dashboard" },
+  { icon: CalendarDays,    label: "Eventi",            path: "/my-events" },
+  { icon: ClipboardList,   label: "Le mie iscrizioni", path: "/subscriptions" },
 ];
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+
+  const menuItems = user?.isOrganizer ? ORGANIZER_ITEMS : EMPLOYEE_ITEMS;
 
   return (
     <aside
@@ -28,13 +36,13 @@ export const Sidebar = () => {
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-sidebar-primary">
             <span className="text-sidebar-primary-foreground font-bold text-lg">
-              🚚
+              🗓️
             </span>
           </div>
           {isOpen && (
             <div className="flex items-center gap-2 overflow-hidden">
               <span className="text-sidebar-foreground text-sm font-medium whitespace-nowrap">
-                Corriere Espresso
+                EFA
               </span>
             </div>
           )}
@@ -42,19 +50,16 @@ export const Sidebar = () => {
       </div>
 
       <nav className="py-4">
-        {MENU_ITEMS.filter((item) =>
-          // Nascondi la voce "Utenti" se l'utente non è admin
-          item.path === "/users" ? user?.isAdmin : true,
-        ).map((item) => (
+        {menuItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
               [
                 "flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors",
-                isActive ?
-                  "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               ].join(" ")
             }
           >

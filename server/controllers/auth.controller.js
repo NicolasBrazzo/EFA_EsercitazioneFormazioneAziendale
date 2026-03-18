@@ -45,7 +45,7 @@ router.post("/login", async (req, res) => {
       {
         sub: user.id,
         email: user.email,
-        role: user.role,
+        isOrganizer: user.isOrganizer,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN },

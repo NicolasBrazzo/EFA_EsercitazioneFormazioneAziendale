@@ -20,9 +20,11 @@ import { sortByField } from "../utils/sortHelpers";
 
 const UsersForm = ({ initialData, onSubmit, error }) => {
   const [formState, setFormState] = useState({
+    name: initialData?.name || "",
+    surname: initialData?.surname || "",
     email: initialData?.email || "",
-    password: initialData?.password || "",
-    isAdmin: initialData?.isAdmin ?? false,
+    password: "",
+    isOrganizer: initialData?.isOrganizer ?? false,
   });
 
   const handleChange = (e) => {
@@ -40,6 +42,32 @@ const UsersForm = ({ initialData, onSubmit, error }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="name">Nome</Label>
+          <Input
+            id="name"
+            type="text"
+            name="name"
+            value={formState.name}
+            onChange={handleChange}
+            placeholder="Mario"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="surname">Cognome</Label>
+          <Input
+            id="surname"
+            type="text"
+            name="surname"
+            value={formState.surname}
+            onChange={handleChange}
+            placeholder="Rossi"
+            required
+          />
+        </div>
+      </div>
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -70,14 +98,14 @@ const UsersForm = ({ initialData, onSubmit, error }) => {
       <div className="flex items-center gap-3 rounded-md border border-input px-3 py-2.5">
         <input
           type="checkbox"
-          id="isAdmin"
-          name="isAdmin"
-          checked={!!formState.isAdmin}
+          id="isOrganizer"
+          name="isOrganizer"
+          checked={!!formState.isOrganizer}
           onChange={handleChange}
           className="h-4 w-4 rounded border-input accent-primary"
         />
-        <Label htmlFor="isAdmin" className="cursor-pointer">
-          Utente amministratore
+        <Label htmlFor="isOrganizer" className="cursor-pointer">
+          Organizzatore
         </Label>
       </div>
 
@@ -109,8 +137,10 @@ export const Users = () => {
   const queryClient = useQueryClient();
 
   const SORT_CONFIG = {
-    isAdmin: { type: "boolean" },
+    name: { type: "string" },
+    surname: { type: "string" },
     email: { type: "string" },
+    isOrganizer: { type: "boolean" },
   };
 
   const handleSort = (field) => {
@@ -187,7 +217,7 @@ export const Users = () => {
     <div className="px-6 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Utenti</h1>
+          <h1 className="text-2xl font-semibold">Gestione utenti</h1>
           <p className="text-sm text-muted-foreground">
             Visualizza, modifica e elimina gli utenti
           </p>
@@ -220,6 +250,26 @@ export const Users = () => {
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("name")}
+                  title="Clicca per ordinare per nome"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {USERS_COLUMN_LABELS.name}
+                    <SortIcon field="name" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide cursor-pointer select-none hover:text-foreground transition-colors"
+                  onClick={() => handleSort("surname")}
+                  title="Clicca per ordinare per cognome"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {USERS_COLUMN_LABELS.surname}
+                    <SortIcon field="surname" sortField={sortField} sortDirection={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide cursor-pointer select-none hover:text-foreground transition-colors"
                   onClick={() => handleSort("email")}
                   title="Clicca per ordinare per email"
                 >
@@ -230,12 +280,12 @@ export const Users = () => {
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide cursor-pointer select-none hover:text-foreground transition-colors"
-                  onClick={() => handleSort("isAdmin")}
-                  title="Clicca per ordinare per tipo utente"
+                  onClick={() => handleSort("isOrganizer")}
+                  title="Clicca per ordinare per ruolo"
                 >
                   <span className="inline-flex items-center gap-1.5">
-                    {USERS_COLUMN_LABELS.isAdmin}
-                    <SortIcon field="isAdmin" sortField={sortField} sortDirection={sortDirection} />
+                    {USERS_COLUMN_LABELS.isOrganizer}
+                    <SortIcon field="isOrganizer" sortField={sortField} sortDirection={sortDirection} />
                   </span>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -250,12 +300,14 @@ export const Users = () => {
                   className="hover:bg-muted/30 transition-colors"
                 >
                   <td className="px-4 py-3 text-muted-foreground">{user.id}</td>
-                  <td className="px-4 py-3 font-medium">{user.email}</td>
+                  <td className="px-4 py-3 font-medium">{user.name}</td>
+                  <td className="px-4 py-3">{user.surname}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                   <td className="px-4 py-3">
-                    {user.isAdmin ? (
-                      <Badge variant="indigo">Admin</Badge>
+                    {user.isOrganizer ? (
+                      <Badge variant="indigo">Organizzatore</Badge>
                     ) : (
-                      <Badge variant="muted">Utente</Badge>
+                      <Badge variant="muted">Dipendente</Badge>
                     )}
                   </td>
                   <td className="px-4 py-3">
